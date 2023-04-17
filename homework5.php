@@ -1,44 +1,47 @@
+<form action="homework5.php" method="post">
+년(年)을 입력하세요 : <input type="number" name="y" /><br />
+월(月)을 입력하세요 : <input type="number" name="m" /><br />
+<input type="submit" value="확인" onclick="this.form.submit();" />
+</form>
 <?php
-// year와 month 변수를 입력받습니다.
-$year = isset($_GET['year']) ? $_GET['year'] : date('Y');
-$month = isset($_GET['month']) ? $_GET['month'] : date('n');
-
-// 입력된 년도와 월에 해당하는 달력을 출력합니다.
-echo "<table>";
-echo "<tr>";
-echo "<th>일</th>";
-echo "<th>월</th>";
-echo "<th>화</th>";
-echo "<th>수</th>";
-echo "<th>목</th>";
-echo "<th>금</th>";
-echo "<th>토</th>";
-echo "</tr>";
-
-// 입력된 년도와 월을 이용하여 해당 월의 시작일과 마지막일을 계산합니다.
-$first_day_of_month = strtotime("$year-$month-01");
-$last_day_of_month = strtotime(date('Y-m-t', $first_day_of_month));
-$last_day_of_prev_month = strtotime('-1 day', strtotime(date('Y-m-01', $first_day_of_month)));
-
-// 이전달 날짜 출력
-echo "<tr>";
-for ($i = 1; $i <= date('w', $first_day_of_month); $i++) {
-  echo "<td class='grayed'>" . date('j', strtotime('-' . (date('w', $first_day_of_month) - $i) . ' day', $first_day_of_month)) . "</td>";
+if(isset($_POST['y'])&&strlen($_POST['y'])>0 && isset($_POST['m'])&&strlen($_POST['m'])>0){
+    $m = isset($_POST["m"])?$_POST["m"]:date("m");
+    $y = isset($_POST["y"])?$_POST["y"]:date("y");
+    if(checkdate($m,1,$y)) {
+    
+     $firstweekday = getDate(mktime(0,0,0,$m,1,$y)); //해당 월 1일의 요일
+     $firstweekday = $firstweekday['wday'];
+     $lastday = date("t", mktime(0,0,0,$m,1,$y)); //t = 주어진 월의 총 일 수(ex : 2014년 1월 = "31" 일)
+     $fc = ceil(($firstweekday+$lastday)/7); //총 주의 수
+     $count = $fc*7; //for 문 count
+     $j=1;
+    echo "<table border='1' width=\"500\" bordercolor=\"#0000FF\">";
+    echo "<tr bgcolor=\"#66FFFF\" align=\"center\"><td colspan=\"7\">". $y."년 ".$m."월 달력</td></tr>";
+    echo "<tr align=\"right\" bgcolor=\"#FF99FF\"><td>일</td><td>월</td><td>화</td><td>수</td><td>목</td><td>금</td><td>토</td></tr>";
+     for($i=1; $i<=$count; $i++){
+      if($i%7==1){
+       echo "<tr>";
+      }
+      echo "<td>";
+      if($i>$firstweekday && $j<=$lastday){
+       echo $j;
+       $j++;
+      }else{
+       echo "&nbsp;";
+      }
+      echo "</td>";
+      if($i%7==0){
+       echo "</tr>";
+      }
+     }
+    echo "</table>";
+    echo "<br/>";
+    }
+    else {	
+    echo "<script>alert(\"올바른 날짜형식을 입력해 주세요\");</script>"; 	
+    }
 }
 
-// 이번달 날짜 출력
-for ($day = 1; $day <= date('t', $first_day_of_month); $day++) {
-  $weekday = date('w', strtotime("$year-$month-$day"));
-  if ($weekday == 0) {
-    echo "</tr><tr>";
-  }
-  echo "<td>$day</td>";
-}
-
-// 다음달 날짜 출력
-for ($i = date('w', $last_day_of_month); $i < 6; $i++) {
-  echo "<td class='grayed'>" . (date('j', strtotime('+' . ($i - date('w', $last_day_of_month) + 1) . ' day', $last_day_of_month))) . "</td>";
-}
-echo "</tr>";
-echo "</table>";
-?>
+ ?>
+</body>
+</html>
